@@ -1,18 +1,60 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import {
+Redirect,
+} from 'react-router-dom';
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.loggedIn = sessionStorage.getItem('user');
+    this.state = {
+      books: []
+    };
+  }
+
+  componentDidMount() {
+
+    axios.get('/api/book')
+      .then(res => {
+        this.setState({ books: res.data });
+      });
+  }
+
   render() {
+    if(!this.loggedIn) {
+           return <Redirect to='/login'/>;
+       }
     return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React/Electron</h2>
+      <div class="container">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              BOOK CATALOG
+            </h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-stripe">
+              <thead>
+                <tr>
+                  <th>ISBN</th>
+                  <th>Title</th>
+                  <th>Author</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.books.map(book =>
+                  <tr>
+                    <td><Link to={`/show/${book._id}`}>{book.isbn}</Link></td>
+                    <td>{book.title}</td>
+                    <td>{book.author}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <p className="App-intro">
-          Hello Electron!
-        </p>
       </div>
     );
   }
